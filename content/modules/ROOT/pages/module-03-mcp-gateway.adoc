@@ -52,7 +52,7 @@ fastmcp version
 [source,sh,role=execute,subs="+attributes"]
 ----
 export SSO_URL="https://sso.{openshift_cluster_ingress_domain}"
-export SERVER=http://mcp.{openshift_cluster_ingress_domain}/mcp
+export SERVER=http://mcp-gateway-openshift-default.openshift-ingress.svc.cluster.local/mcp
 export USER1_TOKEN=$(curl -sk "${SSO_URL}/realms/keycloak/protocol/openid-connect/token" \
   -d "grant_type=password&client_id=mcp-gateway&client_secret=mcp-gateway-secret&username=user1&password=user1pass" \
   | jq -r '.access_token')
@@ -74,6 +74,8 @@ echo "============================================================"
 ----
 +
 NOTE: If your terminal disconnects, the environment variables will be restored automatically when you reconnect.
++
+NOTE: The gateway is exposed through its in-cluster service only. `$SERVER` resolves from the terminal on the right and from other pods in the cluster, but not from your own machine.
 
 . Verify the MCP Gateway and mock servers are running:
 +
@@ -464,51 +466,42 @@ After approximately 60 seconds, the inventory tools will reappear.
 
 The gateway provides graceful degradation without any client-side error handling — unavailable servers are silently removed from the tool set and restored when they recover.
 
-=== Exercise 9: Connect an AI Client (Claude or Cursor)
+=== Exercise 9: Connect an AI Client (opencode)
 
-MCP-compatible AI clients can connect to the gateway and interact with the mock MCP servers through natural language.
+MCP-compatible AI clients can connect to the gateway and interact with the mock MCP servers through natural language. Because the gateway is only reachable inside the cluster, your environment includes an `mcp-cli` pod running https://opencode.ai[opencode^], an open source AI coding agent. It is pre-configured with the lab's LLM and with the gateway as an MCP server named `mcp-gateway`.
 
-. For *Claude Code* (CLI), run the following on your desktop, replacing `<paste-your-token>` with the value of `$USER1_TOKEN` from your terminal:
+. Verify the `mcp-cli` pod is running:
 +
-[source,sh,role="copypaste",subs="+attributes"]
+[source,sh,role=execute]
 ----
-claude mcp add --transport http mcp-gateway \
-  http://mcp.{openshift_cluster_ingress_domain}/mcp \
-  --header "Authorization: Bearer <paste-your-token>"
+oc get pods -n mcp-cli
 ----
 
-. For *Claude Desktop* or *Cursor*, add the following to your MCP server settings, replacing `<paste-your-token>` with the value of `$USER1_TOKEN`:
+. Start opencode in the pod, passing your `user1` token from the terminal:
 +
-[source,json,role="copypaste",subs="+attributes"]
+[source,sh,role=execute]
 ----
-{
-  "mcpServers": {
-    "mcp-gateway": {
-      "url": "http://mcp.{openshift_cluster_ingress_domain}/mcp",
-      "headers": {
-        "Authorization": "Bearer <paste-your-token>"
-      }
-    }
-  }
-}
+oc exec -it -n mcp-cli deploy/mcp-cli -- env GATEWAY_MCP_TOKEN=$USER1_TOKEN opencode
 ----
++
+The token is only set for this opencode session. opencode connects to the gateway at startup, and gateway tools appear with an `mcp-gateway_` prefix (for example `mcp-gateway_inventory_list_products`).
 
-. Once connected, try these natural language prompts:
+. Try these natural language prompts:
 +
 * _"What products are in the warehouse inventory?"_
 * _"Are there any stock alerts I should know about?"_
 * _"Show me today's payment summary"_ — this should fail (user1 doesn't have payments access)
 * _"What is the account status for Acme Corp?"_
 * _"Check if GlobalTech Industries has enough credit for a $10,000 order"_
-+
-image::mcp-gateway-cursor.png[Cursor AI client checking warehouse inventory via MCP Gateway,link=_images/mcp-gateway-cursor.png,window=ea-images]
+
+. Type `/exit` to quit opencode. To repeat the exercise as `user2`, start it again with `GATEWAY_MCP_TOKEN=$USER2_TOKEN` — this time the payments prompt succeeds and the inventory and accounts prompts fail.
 
 The AI automatically discovers tools, selects the right one for each query, and routes the request through the gateway — with authentication and team isolation enforced transparently.
 
 == Known Limitations
 
 * Tool calls use hairpin routing through the gateway — the backend session is established via the gateway's internal service
-* HTTPS requires a wildcard TLS certificate which ACME providers reject for deeply nested OpenShift domains — HTTP with the gateway's own LoadBalancer is the current approach
+* HTTPS requires a wildcard TLS certificate which ACME providers reject for deeply nested OpenShift domains — the gateway is served over HTTP on its in-cluster service, so clients must run inside the cluster
 * Rate limit `Retry-After` header is not natively supported — use `x-ratelimit-reset` from the IETF draft-03 headers instead
 * Broker-level Prometheus metrics (`mcp_broker_*`) are not available in the Red Hat tech preview build
 
@@ -520,4 +513,4 @@ The AI automatically discovers tools, selects the right one for each query, and 
 * Policies (auth, rate limit) can be updated at runtime without gateway restart
 * OpenTelemetry traces provide full request-level observability through Jaeger
 * Graceful degradation automatically removes unavailable servers from the tool set
-* Any MCP-compatible client (FastMCP CLI, Claude, Cursor) can connect with a URL and bearer token
+* Any MCP-compatible client (FastMCP CLI, opencode, Claude, Cursor) can connect with a URL and bearer token

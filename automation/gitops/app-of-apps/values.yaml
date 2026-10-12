@@ -68,6 +68,11 @@ mockMcpServers:
   name: mock-mcp-servers
   namespace: mock-mcp-servers
 
+mcpCli:
+  enabled: true
+  name: mcp-cli
+  namespace: mcp-cli
+
 kialiOssm:
   enabled: true
   name: kiali-ossm

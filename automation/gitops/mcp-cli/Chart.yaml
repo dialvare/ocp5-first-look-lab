@@ -1,0 +1,5 @@
+apiVersion: v2
+name: mcp-cli
+description: In-cluster MCP client (opencode on UBI) built and deployed from an inline Containerfile
+type: application
+version: 0.1.0

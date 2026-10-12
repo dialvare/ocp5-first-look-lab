@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-cli
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    # Roll out a new pod whenever the build pushes a new mcp-cli:latest
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"mcp-cli:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"mcp-cli\")].image"}]'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-cli
+  template:
+    metadata:
+      labels:
+        app: mcp-cli
+    spec:
+      containers:
+        - name: mcp-cli
+          image: image-registry.openshift-image-registry.svc:5000/{{ .Values.namespace }}/mcp-cli:latest
+          env:
+            - name: OPENCODE_CONFIG
+              # Not under /etc/opencode: opencode treats that as a managed config that can't be overridden
+              value: /opt/app-root/config/opencode.json
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-credentials
+                  key: apitoken
+                  optional: true
+            - name: MCP_SERVER_URL
+              value: "https://mcp-server.{{ .Values.clusterSubdomain }}/mcp"
+            - name: MCP_GATEWAY_URL
+              value: {{ .Values.gatewayServiceUrl | quote }}
+          volumeMounts:
+            - name: opencode-config
+              mountPath: /opt/app-root/config
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: opencode-config
+          configMap:
+            name: opencode-config

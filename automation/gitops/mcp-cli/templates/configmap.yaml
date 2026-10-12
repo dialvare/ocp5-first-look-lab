@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencode-config
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  # {env:VAR} is resolved by opencode at startup, so attendees switch MCP tokens
+  # by exporting a new value and restarting opencode
+  opencode.json: |
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "autoupdate": false,
+      "share": "disabled",
+      "model": {{ printf "lab-llm/%s" .Values.llm.model | toJson }},
+      "provider": {
+        "lab-llm": {
+          "npm": "@ai-sdk/openai-compatible",
+          "name": "Lab LLM",
+          "options": {
+            "baseURL": {{ .Values.llm.apiUrl | trimSuffix "/" | toJson }},
+            "apiKey": "{env:LLM_API_KEY}"
+          },
+          "models": {
+            {{ .Values.llm.model | toJson }}: {
+              "name": {{ .Values.llm.model | toJson }}
+            }
+          }
+        }
+      },
+      "mcp": {
+        "openshift": {
+          "type": "remote",
+          "url": "https://mcp-server.{{ .Values.clusterSubdomain }}/mcp",
+          "headers": {
+            "Authorization": "Bearer {env:OPENSHIFT_MCP_TOKEN}"
+          },
+          "enabled": true
+        },
+        "mcp-gateway": {
+          "type": "remote",
+          "url": {{ .Values.gatewayServiceUrl | toJson }},
+          "headers": {
+            "Authorization": "Bearer {env:GATEWAY_MCP_TOKEN}"
+          },
+          "enabled": true
+        }
+      }
+    }
