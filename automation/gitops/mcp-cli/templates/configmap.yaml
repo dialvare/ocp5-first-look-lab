@@ -41,7 +41,7 @@ data:
         },
         "mcp-gateway": {
           "type": "remote",
-          "url": "https://mcp.{{ .Values.clusterSubdomain }}/mcp",
+          "url": "https://mcp-gateway.{{ .Values.clusterSubdomain }}/mcp",
           "headers": {
             "Authorization": "Bearer {env:GATEWAY_MCP_TOKEN}"
           },

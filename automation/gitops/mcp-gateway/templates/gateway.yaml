@@ -14,7 +14,7 @@ spec:
   listeners:
     # Reached through the mcp-gateway Route (route.yaml), which keeps this Host header
     - name: mcp
-      hostname: mcp.{{ .Values.gateway.clusterSubdomain }}
+      hostname: mcp-gateway.{{ .Values.gateway.clusterSubdomain }}
       port: 80
       protocol: HTTP
       allowedRoutes:

@@ -9,8 +9,6 @@ gateway:
   name: mcp-gateway
   namespace: openshift-ingress
   gatewayClassName: openshift-default
-  tls:
-    clusterIssuer: acme-bifrost-production-ddns
 
 keycloak:
   realm: keycloak

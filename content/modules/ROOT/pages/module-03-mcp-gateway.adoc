@@ -52,7 +52,7 @@ fastmcp version
 [source,sh,role=execute,subs="+attributes"]
 ----
 export SSO_URL="https://sso.{openshift_cluster_ingress_domain}"
-export SERVER=https://mcp.{openshift_cluster_ingress_domain}/mcp
+export SERVER=https://mcp-gateway.{openshift_cluster_ingress_domain}/mcp
 export USER1_TOKEN=$(curl -sk "${SSO_URL}/realms/keycloak/protocol/openid-connect/token" \
   -d "grant_type=password&client_id=mcp-gateway&client_secret=mcp-gateway-secret&username=user1&password=user1pass" \
   | jq -r '.access_token')
