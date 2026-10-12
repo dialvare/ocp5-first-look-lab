@@ -12,10 +12,9 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.gateway.gatewayClassName }}
   listeners:
-    # The gateway is only reached in-cluster, through the Service generated for this Gateway.
-    # The operator copies this hostname into the mcp-gateway-route HTTPRoute.
+    # Reached through the mcp-gateway Route (route.yaml), which keeps this Host header
     - name: mcp
-      hostname: {{ .Values.gateway.name }}-{{ .Values.gateway.gatewayClassName }}.{{ .Values.gateway.namespace }}.svc.cluster.local
+      hostname: mcp.{{ .Values.gateway.clusterSubdomain }}
       port: 80
       protocol: HTTP
       allowedRoutes:

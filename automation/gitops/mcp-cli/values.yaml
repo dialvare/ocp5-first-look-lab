@@ -2,11 +2,6 @@ namespace: mcp-cli
 
 # Used to build the MCP server and gateway URLs in the opencode config
 clusterSubdomain: ""
-
-# In-cluster Service generated for the mcp-gateway Gateway (<gateway name>-<gateway class>).
-# Must use the full name: it is the hostname the gateway's mcp listener accepts.
-gatewayServiceUrl: http://mcp-gateway-openshift-default.openshift-ingress.svc.cluster.local/mcp
-
 # Same LLM endpoint as the OLSConfig (passed from openshiftAgenticLightspeed.llm).
 # opencode talks to it as an OpenAI-compatible provider; apiUrl should include the /v1 suffix.
 llm:

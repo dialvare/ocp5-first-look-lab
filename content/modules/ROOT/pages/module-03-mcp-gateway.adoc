@@ -52,7 +52,7 @@ fastmcp version
 [source,sh,role=execute,subs="+attributes"]
 ----
 export SSO_URL="https://sso.{openshift_cluster_ingress_domain}"
-export SERVER=http://mcp-gateway-openshift-default.openshift-ingress.svc.cluster.local/mcp
+export SERVER=https://mcp.{openshift_cluster_ingress_domain}/mcp
 export USER1_TOKEN=$(curl -sk "${SSO_URL}/realms/keycloak/protocol/openid-connect/token" \
   -d "grant_type=password&client_id=mcp-gateway&client_secret=mcp-gateway-secret&username=user1&password=user1pass" \
   | jq -r '.access_token')
@@ -74,8 +74,6 @@ echo "============================================================"
 ----
 +
 NOTE: If your terminal disconnects, the environment variables will be restored automatically when you reconnect.
-+
-NOTE: The gateway is exposed through its in-cluster service only. `$SERVER` resolves from the terminal on the right and from other pods in the cluster, but not from your own machine.
 
 . Verify the MCP Gateway and mock servers are running:
 +
@@ -468,7 +466,7 @@ The gateway provides graceful degradation without any client-side error handling
 
 === Exercise 9: Connect an AI Client (opencode)
 
-MCP-compatible AI clients can connect to the gateway and interact with the mock MCP servers through natural language. Because the gateway is only reachable inside the cluster, your environment includes an `mcp-cli` pod running https://opencode.ai[opencode^], an open source AI coding agent. It is pre-configured with the lab's LLM and with the gateway as an MCP server named `mcp-gateway`.
+MCP-compatible AI clients can connect to the gateway and interact with the mock MCP servers through natural language. So you don't need to install or pay for a client on your own machine, your environment includes an `mcp-cli` pod running https://opencode.ai[opencode^], an open source AI coding agent. It is pre-configured with the lab's LLM and with the gateway as an MCP server named `mcp-gateway`.
 
 . Verify the `mcp-cli` pod is running:
 +
@@ -501,7 +499,7 @@ The AI automatically discovers tools, selects the right one for each query, and 
 == Known Limitations
 
 * Tool calls use hairpin routing through the gateway — the backend session is established via the gateway's internal service
-* HTTPS requires a wildcard TLS certificate which ACME providers reject for deeply nested OpenShift domains — the gateway is served over HTTP on its in-cluster service, so clients must run inside the cluster
+* HTTPS on the Gateway listener itself requires a wildcard TLS certificate which ACME providers reject for deeply nested OpenShift domains — TLS is instead terminated at the OpenShift router, through an edge Route in front of the gateway
 * Rate limit `Retry-After` header is not natively supported — use `x-ratelimit-reset` from the IETF draft-03 headers instead
 * Broker-level Prometheus metrics (`mcp_broker_*`) are not available in the Red Hat tech preview build
 

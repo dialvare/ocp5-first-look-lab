@@ -34,7 +34,7 @@ spec:
       unauthenticated:
         headers:
           WWW-Authenticate:
-            value: "Bearer resource_metadata=http://{{ .Values.gateway.name }}-{{ .Values.gateway.gatewayClassName }}.{{ .Values.gateway.namespace }}.svc.cluster.local/.well-known/oauth-protected-resource/mcp"
+            value: "Bearer resource_metadata=https://mcp.{{ .Values.gateway.clusterSubdomain }}/.well-known/oauth-protected-resource/mcp"
         body:
           value: |
             {
