@@ -1,4 +1,5 @@
 * xref:index.adoc[Lab Overview]
+* xref:byom.adoc[Pre-Requisites: Configure Lightspeed with LLM Key]
 * xref:module-01-agentic-troubleshooting.adoc[Agentic Troubleshooting]
 * xref:module-02-mcp-server.adoc[MCP Server]
 * xref:module-03-mcp-gateway.adoc[MCP Gateway]
