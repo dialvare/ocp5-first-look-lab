@@ -389,6 +389,15 @@ Wait a moment for ArgoCD to recreate it, then verify it's back:
 oc get ratelimitpolicy mcp-gateway-ratelimit -n mock-mcp-servers -o json \
   | jq '.spec.limits["per-user"].rates[0].limit'
 ----
++
+NOTE: If the reconciliation is too slow, change the rate limit back to 200 requests/minute with this command:
++
+[source,sh,role=execute]
+----
+oc get ratelimitpolicy mcp-gateway-ratelimit -n mock-mcp-servers -o json \
+  | jq '.spec.limits["per-user"].rates[0].limit = 200' \
+  | oc replace -f -
+----
 
 Policy changes are reconciled by the MCP Gateway operator and applied without any gateway restart or downtime.
 
