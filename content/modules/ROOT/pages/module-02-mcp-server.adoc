@@ -761,11 +761,11 @@ The AI should:
 .. Confirm the action before proceeding (if confirmation is enabled)
 .. Report success
 
-. Verify the Gateway was created:
+. Ask your AI assistant to verify the Gateway was created:
 +
-[source,sh,role=execute]
+[source,role="copypaste"]
 ----
-oc get gateway.networking.istio.io eap-test-gateway -n istio-system
+Check that the Gateway eap-test-gateway exists in the istio-system namespace
 ----
 
 . Verify the AI can read it back:
