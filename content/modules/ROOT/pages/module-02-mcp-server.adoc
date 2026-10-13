@@ -789,11 +789,11 @@ The AI should confirm before deleting, then report success.
 +
 NOTE: AI clients are typically extra cautious with destructive operations. The MCP server includes system instructions telling AI tools to warn users and ask for explicit confirmation before deleting resources. You may need to confirm the deletion more than once — this is expected safety behavior, not a bug.
 
-. Verify the Gateway is gone:
+. Ask your AI assistant to verify the Gateway is gone:
 +
-[source,sh,role=execute]
+[source,role="copypaste"]
 ----
-oc get gateway.networking.istio.io eap-test-gateway -n istio-system 2>&1 || echo "Gateway deleted successfully"
+Check that the Gateway eap-test-gateway no longer exists in the istio-system namespace
 ----
 
 === Exercise 18: Multi-Tool Mesh Investigation
