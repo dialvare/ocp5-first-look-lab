@@ -40,6 +40,13 @@ Your environment includes:
 
 All commands in this section should be run in the *terminal on the right side* of this window.
 
+. If opencode is still open in the terminal from the previous module, leave it. In the opencode session, type `/exit`:
++
+[source,role="copypaste"]
+----
+/exit
+----
+
 . Verify the FastMCP CLI is available (it was pre-installed during environment provisioning):
 +
 [source,sh,role=execute]
