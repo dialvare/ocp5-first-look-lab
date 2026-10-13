@@ -723,6 +723,13 @@ image::mcp-server-bookinfo-details-fixed.png[Bookinfo product page with details 
 +
 If you wait a minute or two, the Kiali traffic graph should also show the repaired service.
 
+. Leave opencode. In the opencode session, type `/exit`:
++
+[source,role="copypaste"]
+----
+/exit
+----
+
 . Clean up any remaining resources when done:
 +
 [source,sh,role=execute]
