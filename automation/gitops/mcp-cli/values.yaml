@@ -1,0 +1,29 @@
+namespace: mcp-cli
+
+# Used to build the MCP server and gateway URLs in the opencode config
+clusterSubdomain: ""
+# Same LLM endpoint as the OLSConfig (passed from openshiftAgenticLightspeed.llm).
+# opencode talks to it as an OpenAI-compatible provider; apiUrl should include the /v1 suffix.
+llm:
+  apiUrl: ""
+  apiKey: ""
+  model: ""
+
+build:
+  ocClientUrl: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
+  opencodeVersion: latest
+  resources:
+    limits:
+      cpu: "2"
+      memory: 4Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi

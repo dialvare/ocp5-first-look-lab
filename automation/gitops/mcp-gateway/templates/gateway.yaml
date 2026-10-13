@@ -7,11 +7,14 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    # No LoadBalancer provider on these clusters; a pending LB keeps the Gateway unprogrammed
+    networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: {{ .Values.gateway.gatewayClassName }}
   listeners:
+    # Reached through the mcp-gateway Route (route.yaml), which keeps this Host header
     - name: mcp
-      hostname: mcp.{{ .Values.gateway.clusterSubdomain }}
+      hostname: mcp-gateway.{{ .Values.gateway.clusterSubdomain }}
       port: 80
       protocol: HTTP
       allowedRoutes:

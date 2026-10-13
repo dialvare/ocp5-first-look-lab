@@ -58,6 +58,10 @@ openshiftMcpServer:
   name: openshift-mcp-server
   namespace: openshift-mcp
 
+# Demo workloads for the MCP server module (mcp-demo-logs, mcp-demo-production, mcp-demo-network)
+mcpServerDemos:
+  enabled: true
+
 webTerminal:
   enabled: true
   name: web-terminal
@@ -67,6 +71,11 @@ mockMcpServers:
   enabled: true
   name: mock-mcp-servers
   namespace: mock-mcp-servers
+
+mcpCli:
+  enabled: true
+  name: mcp-cli
+  namespace: mcp-cli
 
 kialiOssm:
   enabled: true

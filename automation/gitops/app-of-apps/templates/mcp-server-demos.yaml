@@ -1,4 +1,4 @@
-{{- if .Values.acsMcpServer.enabled }}
+{{- if .Values.mcpServerDemos.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 {{ include "app-of-apps.metadata" (dict "name" "mcp-server-demos" "namespace" .Values.argocd.namespace "syncWave" "1") }}
