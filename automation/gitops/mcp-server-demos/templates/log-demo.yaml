@@ -47,6 +47,7 @@ metadata:
   namespace: {{ .Values.logDemo.namespace }}
   annotations:
     argocd.argoproj.io/ignore-healthcheck: "true"
+    openshift.io/required-scc: restricted-v2
   labels:
     app: mcp-demo
     scenario: log-retrieval
