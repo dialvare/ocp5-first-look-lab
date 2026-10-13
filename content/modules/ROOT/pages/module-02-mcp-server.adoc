@@ -86,6 +86,19 @@ Confirm it returns results without you running any `oc` commands.
 
 TIP: Keep opencode open for the following exercises and paste the prompts into it. Before running a command in the terminal, leave opencode: in the opencode session, type `/exit`. Each exercise shows this as a separate step. To come back to the same conversation afterwards, run the start command again with `--continue` added after `opencode`.
 
+[IMPORTANT]
+====
+If your terminal disconnects while opencode is running, or opencode does not start (the screen stays blank), an earlier opencode session is probably still running in the `mcp-cli` pod and blocking new ones. Delete the pod — it is recreated automatically — and wait for the new one to be ready:
+
+[source,sh,role=execute]
+----
+oc delete pod -n mcp-cli -l app=mcp-cli
+oc rollout status deployment/mcp-cli -n mcp-cli
+----
+
+Then start opencode again *without* `--continue` — previous conversations are removed with the pod.
+====
+
 
 === Exercise 2: AI-Assisted Log Retrieval
 

@@ -483,6 +483,19 @@ oc exec -it -n mcp-cli deploy/mcp-cli -- env GATEWAY_MCP_TOKEN=$USER1_TOKEN open
 ----
 +
 The token is only set for this opencode session. opencode connects to the gateway at startup, and gateway tools appear with an `mcp-gateway_` prefix (for example `mcp-gateway_inventory_list_products`).
++
+[IMPORTANT]
+====
+If your terminal disconnects while opencode is running, or opencode does not start (the screen stays blank), an earlier opencode session is probably still running in the `mcp-cli` pod and blocking new ones. Delete the pod — it is recreated automatically — and wait for the new one to be ready:
+
+[source,sh,role=execute]
+----
+oc delete pod -n mcp-cli -l app=mcp-cli
+oc rollout status deployment/mcp-cli -n mcp-cli
+----
+
+Then run the start command above again.
+====
 
 . Try these natural language prompts:
 +
