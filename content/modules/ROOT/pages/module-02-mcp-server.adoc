@@ -132,6 +132,8 @@ The MCP server supports resource creation through natural language. This demonst
 Create a ConfigMap named test-config in namespace default with key app.properties and value environment=staging
 ----
 
+. Once the AI confirms the ConfigMap was created, type `/exit` to leave opencode and return to the terminal.
+
 . Verify it was created:
 +
 [source,sh,role=execute]
