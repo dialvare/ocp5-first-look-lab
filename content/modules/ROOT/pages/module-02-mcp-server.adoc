@@ -694,8 +694,15 @@ image::mcp-server-bookinfo-details-broken.png[Bookinfo product page with details
 In the Kiali traffic graph, you should see the edge from productpage to details turn red, indicating HTTP errors. Click on the red edge to see the error rate details.
 +
 image::mcp-server-kiali-graph-fault.png[Kiali traffic graph showing red edge from productpage to details due to 503 fault injection,link=_images/mcp-server-kiali-graph-fault.png,window=ea-images]
+
+. Reconnect to opencode with the `mcp-admin` token, continuing your previous conversation:
 +
-Now ask your AI assistant:
+[source,sh,role=execute]
+----
+oc exec -it -n mcp-cli deploy/mcp-cli -- env OPENSHIFT_MCP_TOKEN=$MCP_ADMIN_TOKEN opencode --continue
+----
+
+. Now ask your AI assistant:
 +
 [source,role="copypaste"]
 ----
