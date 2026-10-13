@@ -492,7 +492,21 @@ The token is only set for this opencode session. opencode connects to the gatewa
 * _"What is the account status for Acme Corp?"_
 * _"Check if GlobalTech Industries has enough credit for a $10,000 order"_
 
-. Type `/exit` to quit opencode. To repeat the exercise as `user2`, start it again with `GATEWAY_MCP_TOKEN=$USER2_TOKEN` — this time the payments prompt succeeds and the inventory and accounts prompts fail.
+. Leave opencode. In the opencode session, type `/exit`:
++
+[source,role="copypaste"]
+----
+/exit
+----
+
+. To repeat the exercise as `user2`, start it again with `GATEWAY_MCP_TOKEN=$USER2_TOKEN` — this time the payments prompt succeeds and the inventory and accounts prompts fail.
+
+. When you are done, leave opencode. In the opencode session, type `/exit`:
++
+[source,role="copypaste"]
+----
+/exit
+----
 
 The AI automatically discovers tools, selects the right one for each query, and routes the request through the gateway — with authentication and team isolation enforced transparently.
 
