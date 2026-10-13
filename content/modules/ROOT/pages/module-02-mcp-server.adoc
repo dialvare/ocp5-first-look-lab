@@ -350,7 +350,7 @@ In environments with write access, it's important that AI assistants warn users 
 Delete the namespace mcp-demo-production
 ----
 +
-The AI should *not* immediately delete the namespace. Instead, it should warn you about the consequences — the `mcp-demo-production` namespace contains real workloads (`app-api` and `app-worker` deployments with running replicas) that would be permanently removed. The AI should ask for explicit confirmation before proceeding.
+The AI should *not* immediately delete the namespace. Instead, it should warn you about the consequences — the `mcp-demo-production` namespace contains real workloads (`app-api` and `app-worker` deployments without running replicas) that would be permanently removed. The AI should ask for explicit confirmation before proceeding.
 +
 IMPORTANT: Type *cancel* or *no* to abort. Do not actually delete this namespace — it is used by Exercise 5.
 
