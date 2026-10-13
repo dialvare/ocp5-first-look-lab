@@ -9,6 +9,10 @@ kind: Pod
 metadata:
   name: healthy-pod
   namespace: {{ .Values.logDemo.namespace }}
+  annotations:
+    # Bare pods are admitted with Argo CD's SCCs; pin restricted-v2 so a
+    # higher-priority RunAsAny SCC can't be picked and run the image as root
+    openshift.io/required-scc: restricted-v2
   labels:
     app: mcp-demo
     scenario: log-retrieval
@@ -43,6 +47,7 @@ metadata:
   namespace: {{ .Values.logDemo.namespace }}
   annotations:
     argocd.argoproj.io/ignore-healthcheck: "true"
+    openshift.io/required-scc: restricted-v2
   labels:
     app: mcp-demo
     scenario: log-retrieval
