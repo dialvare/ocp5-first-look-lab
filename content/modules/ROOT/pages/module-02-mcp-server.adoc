@@ -601,6 +601,13 @@ image::mcp-server-bookinfo-with-stars.png[Bookinfo product page showing reviews 
 +
 image::mcp-server-kiali-graph-stars.png[Kiali traffic graph showing traffic distributed across reviews-v1 v2 and v3 with ratings now receiving traffic,link=_images/mcp-server-kiali-graph-stars.png,window=ea-images]
 
+. Leave opencode. In the opencode session, type `/exit`:
++
+[source,role="copypaste"]
+----
+/exit
+----
+
 . To restore the original routing for other exercises:
 +
 [source,sh,role=execute]
