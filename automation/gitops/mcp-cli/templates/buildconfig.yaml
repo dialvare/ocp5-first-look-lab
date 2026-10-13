@@ -1,0 +1,31 @@
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: mcp-cli
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  runPolicy: Serial
+  source:
+    type: Dockerfile
+    dockerfile: |
+{{ .Files.Get "Containerfile" | indent 6 }}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      buildArgs:
+        - name: OC_CLIENT_URL
+          value: {{ .Values.build.ocClientUrl | quote }}
+        - name: OPENCODE_VERSION
+          value: {{ .Values.build.opencodeVersion | quote }}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: mcp-cli:latest
+  # Builds on creation and whenever the BuildConfig (e.g. the Containerfile) changes
+  triggers:
+    - type: ConfigChange
+  resources:
+    {{- toYaml .Values.build.resources | nindent 4 }}

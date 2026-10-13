@@ -1,0 +1,23 @@
+{{- if .Values.gateway.clusterSubdomain }}
+---
+# Expose the gateway through the default router, since its Service is ClusterIP.
+# TLS is terminated at the router with the cluster's default certificate; the router
+# keeps the Host header, so the mcp-gateway.<domain> listener still matches.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.gateway.name }}
+  namespace: {{ .Values.gateway.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  host: mcp-gateway.{{ .Values.gateway.clusterSubdomain }}
+  to:
+    kind: Service
+    name: {{ .Values.gateway.name }}-{{ .Values.gateway.gatewayClassName }}
+  port:
+    targetPort: mcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}
