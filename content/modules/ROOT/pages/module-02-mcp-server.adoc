@@ -16,9 +16,9 @@ Your environment includes an *OpenShift MCP Server* that provides tools for quer
 * *NetEdge* — diagnose OVN networking issues on nodes
 * *OSSM* — query and manage OpenShift Service Mesh / Istio via Kiali (mesh health, traffic graphs, tracing, Istio config management)
 
-The server implements the MCP specification, allowing any MCP-compatible client (Claude Desktop, Cursor, VS Code, MCP Inspector, or custom agents) to connect and use cluster tools. RBAC is enforced — the MCP server respects the user's OpenShift permissions, so a read-only user cannot delete resources even through the AI.
+The server implements the MCP specification, allowing any MCP-compatible client (opencode, Claude Desktop, Cursor, VS Code, MCP Inspector, or custom agents) to connect and use cluster tools. RBAC is enforced — the MCP server respects the user's OpenShift permissions, so a read-only user cannot delete resources even through the AI.
 
-NOTE: These exercises are intended to exercise the OpenShift MCP server capabilities from your own environment, and ask you to use your own MCP-compatible AI client such as Claude Desktop or Cursor, which would require you to spend your own tokens to run through the exercises. Alternatively, you can use the built-in OpenShift Lightspeed chat window for most exercises — it has been pre-configured to use the same MCP server outlined here. However, Exercise 4 (RBAC Enforcement) and Exercise 8 (Read-Only Mode) require your own MCP client, since they involve switching user tokens and refreshing client-side tool lists, which cannot be done through Lightspeed.
+NOTE: These exercises use https://opencode.ai[opencode^], an open source AI coding agent that runs in an `mcp-cli` pod in your cluster. It is pre-configured with the lab's LLM and with this MCP server, so you don't need to install a client or spend your own tokens. Alternatively, you can use the built-in OpenShift Lightspeed chat window for most exercises — it has been pre-configured to use the same MCP server outlined here. However, Exercise 4 (RBAC Enforcement) and Exercise 8 (Read-Only Mode) require an MCP client such as opencode, since they involve switching user tokens and refreshing client-side tool lists, which cannot be done through Lightspeed.
 
 == Before You Begin
 
@@ -29,7 +29,14 @@ NOTE: These exercises are intended to exercise the OpenShift MCP server capabili
 oc get pods -n openshift-mcp
 ----
 
-* Note the MCP server endpoint for use in your AI client (you will also need a bearer token, generated in Exercise 1):
+* Verify the `mcp-cli` pod, which runs the opencode AI client, is running:
++
+[source,sh,role=execute]
+----
+oc get pods -n mcp-cli
+----
+
+* Note the MCP server endpoint. opencode is already configured with it; you only need it to connect another MCP client:
 +
 [source,text,role="copypaste",subs="+attributes"]
 ----
@@ -40,51 +47,35 @@ https://mcp-server.{openshift_cluster_ingress_domain}/mcp
 
 === Exercise 1: Connect Your AI Client to the MCP Server
 
-To connect an MCP-compatible client (Claude Desktop, Cursor, etc.) to the OpenShift MCP server, you need an OpenShift bearer token.
+The MCP server acts on behalf of whoever calls it, so an MCP client needs an OpenShift bearer token. opencode reads the token from the `OPENSHIFT_MCP_TOKEN` environment variable when it starts.
 
-. Generate a token for the `mcp-admin` user (has full cluster access):
+. Generate a token for the `mcp-admin` user (has full cluster access) and save it to `~/.bashrc` (in case your terminal session disconnects):
 +
-[source,sh,role=execute,subs="+attributes"]
+[source,sh,role=execute]
 ----
 cp ~/.kube/config ~/.kube/config.bak
 MCP_ADMIN_PASS=$(oc get secret mcp-user-credentials -n openshift-mcp -o jsonpath='{.data.mcp-admin}' | base64 -d)
 oc login -u mcp-admin -p "${MCP_ADMIN_PASS}"
-echo "============================================================"
-echo "Your mcp-admin token: $(oc whoami -t)"
-echo "============================================================"
+export MCP_ADMIN_TOKEN=$(oc whoami -t)
 cp ~/.kube/config.bak ~/.kube/config
+echo "export MCP_ADMIN_TOKEN=$MCP_ADMIN_TOKEN" >> ~/.bashrc
+echo "mcp-admin token saved in \$MCP_ADMIN_TOKEN"
 ----
 +
-NOTE: The commands above log in as `mcp-admin` to obtain the token, then restore the cluster admin session. Copy the displayed token for use in your AI client.
+NOTE: The commands above log in as `mcp-admin` to obtain the token, then restore the cluster admin session.
 
-. Configure your MCP client with the endpoint and token, replacing `<paste-your-token-here>` with the token you just generated.
+. Start opencode in the `mcp-cli` pod with the `mcp-admin` token:
 +
-For *Claude Code* (CLI), run:
-+
-[source,sh,role="copypaste",subs="+attributes"]
+[source,sh,role=execute]
 ----
-claude mcp add --transport http openshift \
-  https://mcp-server.{openshift_cluster_ingress_domain}/mcp \
-  --header "Authorization: Bearer <paste-your-token-here>"
+oc exec -it -n mcp-cli deploy/mcp-cli -- env OPENSHIFT_MCP_TOKEN=$MCP_ADMIN_TOKEN opencode
 ----
 +
-For *Claude Desktop* or *Cursor*, add the following to your MCP server settings:
+opencode connects to the MCP server, registered as `openshift`, at startup. Its tools appear with an `openshift_` prefix (for example `openshift_pods_list_in_namespace`).
 +
-[source,json,role="copypaste",subs="+attributes"]
-----
-{
-  "mcpServers": {
-    "openshift": {
-      "url": "https://mcp-server.{openshift_cluster_ingress_domain}/mcp",
-      "headers": {
-        "Authorization": "Bearer <paste-your-token-here>"
-      }
-    }
-  }
-}
-----
+NOTE: opencode is also configured with the MCP Gateway from the next module. It shows as needing authentication until you provide a gateway token in that module — you can ignore it here.
 
-. Verify the connection by asking your AI assistant:
+. Verify the connection by asking:
 +
 [source,role="copypaste"]
 ----
@@ -92,6 +83,8 @@ List all pods in namespace openshift-lightspeed
 ----
 +
 Confirm it returns results without you running any `oc` commands.
+
+TIP: Keep opencode open for the following exercises and paste the prompts into it. When a step asks you to run a command in the terminal, type `/exit` to leave opencode first. To come back to the same conversation afterwards, run the start command again with `--continue` added after `opencode`.
 
 
 === Exercise 2: AI-Assisted Log Retrieval
@@ -159,20 +152,24 @@ NOTE: If you are using OpenShift Lightspeed rather than your own MCP-enabled cli
 
 In production environments, not every user should have write access. The MCP server enforces OpenShift RBAC per-user via bearer token passthrough — a read-only user cannot create, modify, or delete resources even when asking the AI to do so.
 
-. Generate a token for the `mcp-viewer` user (has read-only access):
+. If opencode is open, type `/exit` to return to the terminal. Then generate a token for the `mcp-viewer` user (has read-only access):
 +
 [source,sh,role=execute]
 ----
 cp ~/.kube/config ~/.kube/config.bak
 MCP_VIEWER_PASS=$(oc get secret mcp-user-credentials -n openshift-mcp -o jsonpath='{.data.mcp-viewer}' | base64 -d)
 oc login -u mcp-viewer -p "${MCP_VIEWER_PASS}"
-echo "============================================================"
-echo "Your mcp-viewer token: $(oc whoami -t)"
-echo "============================================================"
+export MCP_VIEWER_TOKEN=$(oc whoami -t)
 cp ~/.kube/config.bak ~/.kube/config
+echo "mcp-viewer token saved in \$MCP_VIEWER_TOKEN"
 ----
 
-. Update your AI client configuration to use the `mcp-viewer` token, then restart your client. The easiest way is to quit and reopen Cursor, or exit Claude Code and restart with `claude -c`.
+. Start opencode with the `mcp-viewer` token:
++
+[source,sh,role=execute]
+----
+oc exec -it -n mcp-cli deploy/mcp-cli -- env OPENSHIFT_MCP_TOKEN=$MCP_VIEWER_TOKEN opencode
+----
 
 . Try a read operation — this should succeed:
 +
@@ -195,14 +192,19 @@ Delete the pod healthy-pod in namespace mcp-demo-logs
 Create a ConfigMap named hack in namespace default
 ----
 
-. Verify the AI reports a permissions error for the ConfigMap creation (e.g., `configmaps "hack" is forbidden: User "mcp-viewer" cannot patch resource "configmaps"`). Confirm the ConfigMap was not created:
+. Verify the AI reports a permissions error for the ConfigMap creation (e.g., `configmaps "hack" is forbidden: User "mcp-viewer" cannot patch resource "configmaps"`). Type `/exit` to leave opencode, then confirm the ConfigMap was not created:
 +
 [source,sh,role=execute]
 ----
 oc get cm hack -n default 2>&1 || echo "ConfigMap not found — RBAC enforcement confirmed"
 ----
+
+. Switch back to the `mcp-admin` token (from Exercise 1) before continuing. The remaining exercises require write access and will fail with the `mcp-viewer` token:
 +
-IMPORTANT: Switch your AI client back to the `mcp-admin` token (from Exercise 1) before continuing. The remaining exercises require write access and will fail with the `mcp-viewer` token. Restart your client after switching tokens (quit and reopen Cursor, or exit Claude Code and restart with `claude -c`).
+[source,sh,role=execute]
+----
+oc exec -it -n mcp-cli deploy/mcp-cli -- env OPENSHIFT_MCP_TOKEN=$MCP_ADMIN_TOKEN opencode
+----
 
 == Observability & Network Diagnostics
 
@@ -322,7 +324,7 @@ NOTE: If you are using OpenShift Lightspeed rather than your own MCP-enabled cli
 
 For compliance and security-sensitive environments, the MCP server can be placed in read-only mode at the server level. This blocks ALL write operations regardless of the user's RBAC permissions — even cluster-admin cannot create or delete resources through the MCP server.
 
-. Enable read-only mode:
+. If opencode is open, type `/exit` to return to the terminal. Then enable read-only mode:
 +
 [source,sh,role=execute]
 ----
@@ -333,8 +335,13 @@ oc rollout status deployment openshift-mcp-server -n openshift-mcp --timeout=120
 ----
 +
 In read-only mode, write tools are *hidden entirely*, not just blocked. This applies to all toolsets including OSSM (e.g., `ossm_manage_istio_config` also disappears). The tool count drops from 49 to approximately 41.
+
+. Start opencode again. MCP clients load the tool list when they connect, so a new session picks up the reduced tool set:
 +
-NOTE: Most MCP clients cache the tool list at connect time. After enabling read-only mode, restart your client to refresh the tool list. The easiest way is to quit and reopen Cursor, or exit Claude Code and restart with `claude -c`.
+[source,sh,role=execute]
+----
+oc exec -it -n mcp-cli deploy/mcp-cli -- env OPENSHIFT_MCP_TOKEN=$MCP_ADMIN_TOKEN opencode
+----
 
 . Try a write prompt — should fail with "unknown tool":
 +
@@ -357,7 +364,7 @@ Delete the pod test-pod in namespace sandbox
 List all pods in the mcp-demo-logs namespace
 ----
 
-. When done, restore write mode by removing the `--read-only` flag:
+. When done, type `/exit` to leave opencode, then restore write mode by removing the `--read-only` flag:
 +
 [source,sh,role=execute]
 ----
@@ -366,8 +373,13 @@ oc patch deployment openshift-mcp-server -n openshift-mcp \
   -p='[{"op":"replace","path":"/spec/template/spec/containers/0/args","value":["--config","/etc/mcp/config.toml"]}]'
 oc rollout status deployment openshift-mcp-server -n openshift-mcp --timeout=120s
 ----
+
+. Start opencode again so the write tools reappear:
 +
-Restart your client after restoring write mode so the write tools reappear (quit and reopen Cursor, or exit Claude Code and restart with `claude -c`).
+[source,sh,role=execute]
+----
+oc exec -it -n mcp-cli deploy/mcp-cli -- env OPENSHIFT_MCP_TOKEN=$MCP_ADMIN_TOKEN opencode
+----
 
 == Service Mesh (Kiali/OSSM)
 
@@ -683,7 +695,7 @@ Delete the eap-test-gateway Gateway in istio-system
 +
 The AI should confirm before deleting, then report success.
 +
-NOTE: AI clients like Claude are extra cautious with destructive operations. The MCP server includes system instructions telling AI tools to warn users and ask for explicit confirmation before deleting resources. You may need to confirm the deletion more than once — this is expected safety behavior, not a bug.
+NOTE: AI clients are typically extra cautious with destructive operations. The MCP server includes system instructions telling AI tools to warn users and ask for explicit confirmation before deleting resources. You may need to confirm the deletion more than once — this is expected safety behavior, not a bug.
 
 . Verify the Gateway is gone:
 +
