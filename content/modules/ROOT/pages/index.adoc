@@ -26,7 +26,7 @@ NOTE: Some passwords are not listed here for security reasons. Refer to the cred
 
 | OpenShift Console
 | `{openshift_cluster_admin_username}`
-| (see EAP credentials)
+| (see the lab credentials)
 | {openshift_cluster_console_url}[Console^]
 
 | OpenShift GitOps (Argo CD)
