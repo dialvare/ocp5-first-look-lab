@@ -18,15 +18,13 @@ This lab will alow you to explore the new capabilities of OpenShift 5, covering 
 
 == Credentials
 
-NOTE: Some passwords are not listed here for security reasons. Refer to the credentials given to you for the Early Access Program.
-
 [cols="1,1,1,1"]
 |===
 | *Service* | *Username* | *Password* | *Link*
 
 | OpenShift Console
 | `{openshift_cluster_admin_username}`
-| (see the lab credentials)
+| `{openshift_cluster_admin_password}`
 | {openshift_cluster_console_url}[Console^]
 
 | OpenShift GitOps (Argo CD)
