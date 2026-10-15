@@ -10,7 +10,7 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: {{ .Values.reencryptRoute.serviceAccountName | default "central-reencrypt-route-sa" }}
+      serviceAccountName: central-reencrypt-route-sa
       restartPolicy: Never
       containers:
       - name: create-route
@@ -70,7 +70,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Values.reencryptRoute.serviceAccountName | default "central-reencrypt-route-sa" }}
+  name: central-reencrypt-route-sa
   annotations:
     argocd.argoproj.io/sync-wave: "9"
 ---
@@ -100,5 +100,5 @@ roleRef:
   name: central-reencrypt-route-role
 subjects:
 - kind: ServiceAccount
-  name: {{ .Values.reencryptRoute.serviceAccountName | default "central-reencrypt-route-sa" }}
+  name: central-reencrypt-route-sa
   namespace: {{ .Release.Namespace }}
