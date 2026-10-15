@@ -78,6 +78,5 @@ spec:
           llm:
             apiUrl: "{{ ocp5_ea_llm_api_url }}"
             apiKey: "{{ ocp5_ea_llm_api_key }}"
-            # provider: "{{ ocp5_ea_llm_api_provider }}"
-            provider: rhoai_vllm
-            model: claude-sonnet-4-6
+            provider: "{{ ocp5_ea_llm_api_provider }}"
+            model: "{{ ocp5_ea_llm_api_model }}"
