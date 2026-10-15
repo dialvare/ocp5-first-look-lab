@@ -19,8 +19,6 @@ spec:
     adminPasswordSecret:
       name: central-admin-password
 {{- end }}
-    defaultTLSSecret:
-      name: central-default-tls-cert
     db:
       resources:
         requests:

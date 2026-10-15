@@ -4,10 +4,6 @@ clusterName: local-cluster
 
 adminPassword: ""
 
-clusterSubdomain: ""
-
-clusterIssuer: acme-bifrost-production-ddns
-
 centralDb:
   resources:
     requests:
