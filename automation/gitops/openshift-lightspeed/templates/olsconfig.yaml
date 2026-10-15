@@ -20,7 +20,7 @@ spec:
         models:
           - name: {{ .Values.llm.model }}
         name: {{ .Values.llm.provider }}
-        type: {{ .Values.llm.provider }}
+        type: openai
         url: {{ .Values.llm.apiUrl | quote }}
   mcpServers:
 {{- range .Values.mcpServers }}
