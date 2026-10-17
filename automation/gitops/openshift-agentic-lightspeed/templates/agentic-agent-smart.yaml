@@ -13,7 +13,7 @@ metadata:
 spec:
   llmProvider:
     name: openai
-  model: {{ .Values.llm.model | quote }}
+  model: "claude-sonnet-4-6"
   timeouts:
     analysisSeconds: 120
     executionSeconds: 120

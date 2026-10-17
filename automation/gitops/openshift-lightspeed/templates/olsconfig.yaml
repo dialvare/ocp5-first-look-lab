@@ -18,9 +18,9 @@ spec:
       - credentialsSecretRef:
           name: llm-credentials
         models:
-          - name: {{ .Values.llm.model }}
+          - name: claude-sonnet-4-6
         name: {{ .Values.llm.provider }}
-        type: {{ .Values.llm.provider }}
+        type: rhoai_vllm
         url: {{ .Values.llm.apiUrl | quote }}
   mcpServers:
 {{- range .Values.mcpServers }}
@@ -35,7 +35,7 @@ spec:
   ols:
     logLevel: DEBUG
     maxIterations: 30
-    defaultModel: {{ .Values.llm.model }}
+    defaultModel: claude-sonnet-4-6
     defaultProvider: {{ .Values.llm.provider }}
     deployment: 
       alertsAdapter:
